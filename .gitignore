@@ -223,3 +223,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+
+backend/documents/
+
+backend/example_docs/
