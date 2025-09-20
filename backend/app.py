@@ -13,7 +13,7 @@ from config import get_config
 from utils.database import DatabaseManager
 
 # Import services
-from services.rag_service import RAGService
+from services.enhanced_rag_service import EnhancedRAGServiceV2
 from services.file_processor import FileProcessor
 
 # Import routes
@@ -57,7 +57,7 @@ def create_app(config_name=None):
     
     # Initialize services
     db_manager = DatabaseManager(config.DATABASE_FILE)
-    rag_service = RAGService(config)
+    rag_service = EnhancedRAGServiceV2(config)
     
     # Register blueprints
     auth_bp = init_auth_routes(db_manager)

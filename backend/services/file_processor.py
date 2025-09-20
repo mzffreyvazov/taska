@@ -4,15 +4,15 @@ import os
 import json
 from typing import Optional, List, Dict
 import pandas as pd
-
+import pdfplumber
+import PyPDF2
 # PDF Libraries
 PDF_LIBRARY = None
 try:
-    import pdfplumber
+    
     PDF_LIBRARY = 'pdfplumber'
 except ImportError:
     try:
-        import PyPDF2
         PDF_LIBRARY = 'pypdf2'
     except ImportError:
         print("⚠️ PDF kitabxanası tapılmadı!")
