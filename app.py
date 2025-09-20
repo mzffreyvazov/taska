@@ -187,7 +187,7 @@ def initialize_ai_systems():
     if GEMINI_AVAILABLE and search_engine:
         try:
             ai_generator = EnhancedOpinionGenerator(
-                api_key=os.getenv("GEMINI_API_KEY", "AIzaSyAkGFBA12GztJUXSx9CA9kUwFG0pfJTOjw"),
+                api_key=os.getenv("GEMINI_API_KEY", ""),
                 db_path=str(BASE_DIR / "azerbaijani_chunks.db")
             )
             print("✓ AI generator initialized")
@@ -460,7 +460,7 @@ def upload_strategy_document():
                 if GEMINI_AVAILABLE:
                     try:
                         ai_generator = EnhancedOpinionGenerator(
-                            api_key=os.getenv("GEMINI_API_KEY", "AIzaSyAkGFBA12GztJUXSx9CA9kUwFG0pfJTOjw"),
+                            api_key=os.getenv("GEMINI_API_KEY", ""),
                             db_path=str(BASE_DIR / "azerbaijani_chunks.db")
                         )
                         print("AI generator reinitialized")

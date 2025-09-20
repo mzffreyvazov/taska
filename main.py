@@ -8,7 +8,7 @@ from datetime import datetime
 from az_hierarchical_chunking import HybridSearchEngine, AzerbaijaniTextProcessor
 
 # Set API key directly
-GEMINI_API_KEY = "AIzaSyCcoEj8Hyy017kZkhZZ4GYNB30iU3DfBoI"
+GEMINI_API_KEY = ""
 
 
 class ChunkObject:
