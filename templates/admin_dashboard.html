@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - AI Hökumət Analiz Sistemi{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h2>
+    <div>
+        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadStrategyModal">
+            <i class="fas fa-upload me-2"></i>Strategiya Sənədi Yüklə
+        </button>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title">Təqdim Edilən Sənədlər</h6>
+                        <h3 class="mb-0">{{ documents|length }}</h3>
+                    </div>
+                    <i class="fas fa-file-alt fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title">Təhlil Edilən</h6>
+                        <h3 class="mb-0">{{ analyzed_count }}</h3>
+                    </div>
+                    <i class="fas fa-check-circle fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title">Gözləyən</h6>
+                        <h3 class="mb-0">{{ pending_count }}</h3>
+                    </div>
+                    <i class="fas fa-clock fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-grow-1">
+                        <h6 class="card-title">Strategiya Sənədləri</h6>
+                        <h3 class="mb-0">{{ strategy_docs|length }}</h3>
+                    </div>
+                    <i class="fas fa-book fa-2x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Navigation Tabs -->
+<ul class="nav nav-tabs" id="adminTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" id="documents-tab" data-bs-toggle="tab" data-bs-target="#documents" type="button">
+            <i class="fas fa-file-alt me-1"></i>Təqdim Edilən Sənədlər
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" id="strategy-tab" data-bs-toggle="tab" data-bs-target="#strategy" type="button">
+            <i class="fas fa-book me-1"></i>Strategiya Sənədləri
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content" id="adminTabsContent">
+    <!-- Submitted Documents Tab -->
+    <div class="tab-pane fade show active" id="documents" role="tabpanel">
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Təqdim Edilən Sənədlər</h5>
+            </div>
+            <div class="card-body">
+                {% if documents %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Başlıq</th>
+                                    <th>Təqdim Edən</th>
+                                    <th>Tarix</th>
+                                    <th>Status</th>
+                                    <th>Qərar</th>
+                                    <th>Əməliyyatlar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in documents %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ doc.title }}</strong>
+                                        {% if doc.submitter_organization %}
+                                            <br><small class="text-muted">{{ doc.submitter_organization }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ doc.submitter_name or 'Anonim' }}
+                                        {% if doc.submitter_email %}
+                                            <br><small class="text-muted">{{ doc.submitter_email }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ doc.submitted_at[:10] }}</td>
+                                    <td>
+                                        {% if doc.status == 'pending' %}
+                                            <span class="badge bg-warning">Gözləyir</span>
+                                        {% elif doc.status == 'analyzed' %}
+                                            <span class="badge bg-success">Təhlil Edildi</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if doc.decision %}
+                                            {% if doc.decision == 'TƏSDİQ EDİLİR' %}
+                                                <span class="badge decision-approved text-white">Təsdiq</span>
+                                            {% elif doc.decision == 'RƏD EDİLİR' %}
+                                                <span class="badge decision-rejected text-white">Rədd</span>
+                                            {% elif doc.decision == 'ŞƏRTLİ TƏSDİQ' %}
+                                                <span class="badge decision-conditional text-white">Şərtli</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="text-muted">-</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if not doc.decision %}
+                                            <a href="{{ url_for('analyze_document', document_id=doc.document_id) }}"
+                                               class="btn btn-sm btn-primary" title="Təhlil Et">
+                                                <i class="fas fa-brain"></i>
+                                            </a>
+                                        {% else %}
+                                            <a href="{{ url_for('view_analysis', document_id=doc.document_id) }}"
+                                               class="btn btn-sm btn-info" title="Təhlili Gör">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Hələ sənəd təqdim edilməyib.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Strategy Documents Tab -->
+    <div class="tab-pane fade" id="strategy" role="tabpanel">
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">Strategiya Sənədləri</h5>
+            </div>
+            <div class="card-body">
+                {% if strategy_docs %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Sənəd Adı</th>
+                                    <th>Chunk Sayı</th>
+                                    <th>Yükləyən</th>
+                                    <th>Tarix</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for doc in strategy_docs %}
+                                <tr>
+                                    <td><strong>{{ doc.document_name }}</strong></td>
+                                    <td>
+                                        <span class="badge bg-info">{{ doc.chunks_count }} chunk</span>
+                                    </td>
+                                    <td>{{ doc.uploaded_by }}</td>
+                                    <td>{{ doc.uploaded_at[:10] }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Hələ strategiya sənədi yüklənməyib.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upload Strategy Modal -->
+<div class="modal fade" id="uploadStrategyModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-upload me-2"></i>Strategiya Sənədi Yüklə
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('upload_strategy_document') }}" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="document_name" class="form-label">Sənəd Adı</label>
+                        <input type="text" class="form-control" id="document_name" name="document_name"
+                               placeholder="Strategiya sənədinin adını daxil edin">
+                    </div>
+                    <div class="mb-3">
+                        <label for="strategy_file" class="form-label">Fayl Seçin</label>
+                        <input type="file" class="form-control" id="strategy_file" name="strategy_file"
+                               accept=".txt,.pdf,.doc,.docx" required>
+                        <div class="form-text">Dəstəklənən formatlar: TXT, PDF, DOC, DOCX</div>
+                    </div>
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Qeyd:</strong> Yüklənən sənəd avtomatik olaraq chunk-lara bölünəcək və
+                        axtarış bazasına əlavə ediləcək.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Ləğv Et</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-upload me-2"></i>Yüklə
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

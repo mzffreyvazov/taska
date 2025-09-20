@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Təhlil Nəticəsi - AI Hökumət Analiz Sistemi{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2><i class="fas fa-file-alt me-2"></i>Sənəd Təhlili</h2>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Geri Qayıt
+            </a>
+        </div>
+
+        <!-- Document Information -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Sənəd Məlumatları</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Başlıq:</strong> {{ document.title }}</p>
+                        <p><strong>Təqdim Edən:</strong> {{ document.submitter_name or 'Anonim' }}</p>
+                        <p><strong>Təşkilat:</strong> {{ document.submitter_organization or '-' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Təqdim Tarixi:</strong> {{ document.submitted_at[:19] }}</p>
+                        <p><strong>Status:</strong>
+                            <span class="badge bg-success">{{ document.status.title() }}</span>
+                        </p>
+                        {% if document.submitter_email %}
+                            <p><strong>Email:</strong> {{ document.submitter_email }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if document.comments %}
+                    <hr>
+                    <p><strong>Şərhlər:</strong></p>
+                    <p class="text-muted">{{ document.comments }}</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- AI Analysis Results -->
+        {% if analysis %}
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="fas fa-brain me-2"></i>AI Təhlil Nəticəsi
+                    </h5>
+                    <div>
+                        {% if analysis.decision == 'TƏSDİQ EDİLİR' %}
+                            <span class="badge decision-approved text-white fs-6">TƏSDİQ EDİLİR</span>
+                        {% elif analysis.decision == 'RƏD EDİLİR' %}
+                            <span class="badge decision-rejected text-white fs-6">RƏD EDİLİR</span>
+                        {% elif analysis.decision == 'ŞƏRTLİ TƏSDİQ' %}
+                            <span class="badge decision-conditional text-white fs-6">ŞƏRTLİ TƏSDİQ</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-clock me-1"></i>Təhlil Tarixi: {{ analysis.analyzed_at[:19] }}
+                            <span class="mx-2">|</span>
+                            <i class="fas fa-link me-1"></i>İstifadə Edilən Chunk-lar: {{ analysis.chunks_referenced }}
+                        </small>
+                    </div>
+
+                    <!-- Formatted Opinion -->
+                    <div class="analysis-content">{{ analysis.formatted_opinion }}</div>
+                </div>
+            </div>
+        {% else %}
+            <div class="card">
+                <div class="card-body text-center">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+                    <h5>Təhlil Edilməyib</h5>
+                    <p class="text-muted">Bu sənəd hələ AI tərəfindən təhlil edilməyib.</p>
+                    <a href="{{ url_for('analyze_document', document_id=document.document_id) }}"
+                       class="btn btn-primary">
+                        <i class="fas fa-brain me-2"></i>İndi Təhlil Et
+                    </a>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Document Content (Expandable) -->
+        <div class="card">
+            <div class="card-header">
+                <button class="btn btn-link p-0 text-decoration-none w-100 text-start"
+                        type="button" data-bs-toggle="collapse" data-bs-target="#documentContent">
+                    <h5 class="mb-0">
+                        <i class="fas fa-file-text me-2"></i>Sənəd Məzmunu
+                        <i class="fas fa-chevron-down float-end"></i>
+                    </h5>
+                </button>
+            </div>
+            <div class="collapse" id="documentContent">
+                <div class="card-body">
+                    <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
+                        <pre class="mb-0" style="white-space: pre-wrap; font-family: inherit;">{{ document.content }}</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

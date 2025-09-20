@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+
+{% block title %}Sənəd Təqdim Et - AI Hökumət Analiz Sistemi{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8 mx-auto">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">
+                    <i class="fas fa-file-upload me-2"></i>Sənəd Təqdim Et
+                </h4>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    Sənədinizi "Rəqəmsal İqtisadiyyat Strategiyası"na uyğunluq üçün AI analiz sisteminə təqdim edin.
+                </p>
+
+                <form id="documentForm" enctype="multipart/form-data">
+                    <!-- Document Title -->
+                    <div class="mb-3">
+                        <label for="title" class="form-label">
+                            <i class="fas fa-heading me-1"></i>Sənəd Başlığı <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="title" name="title" required
+                               placeholder="Sənədinizin başlığını daxil edin">
+                    </div>
+
+                    <!-- Submitter Information -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="submitter_name" class="form-label">
+                                <i class="fas fa-user me-1"></i>Ad və Soyad
+                            </label>
+                            <input type="text" class="form-control" id="submitter_name" name="submitter_name"
+                                   placeholder="Tam adınızı daxil edin">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="submitter_email" class="form-label">
+                                <i class="fas fa-envelope me-1"></i>Email
+                            </label>
+                            <input type="email" class="form-control" id="submitter_email" name="submitter_email"
+                                   placeholder="email@example.com">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="submitter_organization" class="form-label">
+                            <i class="fas fa-building me-1"></i>Təşkilat/Nazirlik
+                        </label>
+                        <input type="text" class="form-control" id="submitter_organization" name="submitter_organization"
+                               placeholder="Təşkilatınızın adı">
+                    </div>
+
+                    <!-- Document Upload -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-cloud-upload-alt me-1"></i>Sənəd Faylı
+                        </label>
+                        <div class="upload-area" id="uploadArea">
+                            <input type="file" class="form-control" id="document" name="document"
+                                   accept=".txt,.pdf,.doc,.docx" style="display: none;">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <p class="mb-2">Faylı buraya sürükləyin və ya <strong>klikləyin</strong></p>
+                            <small class="text-muted">Dəstəklənən formatlar: TXT, PDF, DOC, DOCX (Maks. 16MB)</small>
+                            <div id="fileName" class="mt-2"></div>
+                        </div>
+                    </div>
+
+                    <!-- Text Input -->
+                    <div class="mb-3">
+                        <label for="document_text" class="form-label">
+                            <i class="fas fa-edit me-1"></i>Və ya mətn daxil edin
+                        </label>
+                        <textarea class="form-control" id="document_text" name="document_text" rows="8"
+                                  placeholder="Sənədinizin mətnini buraya yapışdırın..."></textarea>
+                    </div>
+
+                    <!-- Comments -->
+                    <div class="mb-3">
+                        <label for="comments" class="form-label">
+                            <i class="fas fa-comment me-1"></i>Əlavə Şərhlər
+                        </label>
+                        <textarea class="form-control" id="comments" name="comments" rows="3"
+                                  placeholder="Sənədinizlə bağlı əlavə məlumat və ya şərhlər..."></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            <span id="btnText">Təqdim Et</span>
+                            <span id="btnSpinner" class="spinner-border spinner-border-sm ms-2" style="display: none;"></span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Success Modal -->
+        <div class="modal fade" id="successModal" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-success text-white">
+                        <h5 class="modal-title">
+                            <i class="fas fa-check-circle me-2"></i>Uğurlu!
+                        </h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Sənədiniz uğurla təqdim edildi və AI analiz sisteminə göndərildi.</p>
+                        <p><strong>Sənəd ID:</strong> <span id="documentId"></span></p>
+                        <p class="text-muted">AI təhlili tamamlandıqdan sonra nəticələr admin panelində görünəcək.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-success" data-bs-dismiss="modal">Tamam</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('document');
+    const fileName = document.getElementById('fileName');
+    const form = document.getElementById('documentForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const btnText = document.getElementById('btnText');
+    const btnSpinner = document.getElementById('btnSpinner');
+
+    // Upload area click handler
+    uploadArea.addEventListener('click', () => fileInput.click());
+
+    // Drag and drop handlers
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#1e3a8a';
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.style.borderColor = '#6b7280';
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.style.borderColor = '#6b7280';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            fileInput.files = files;
+            showFileName(files[0].name);
+        }
+    });
+
+    // File input change handler
+    fileInput.addEventListener('change', function() {
+        if (this.files.length > 0) {
+            showFileName(this.files[0].name);
+        }
+    });
+
+    function showFileName(name) {
+        fileName.innerHTML = `<div class="alert alert-info mt-2 mb-0">
+            <i class="fas fa-file me-2"></i>Seçilmiş fayl: <strong>${name}</strong>
+        </div>`;
+    }
+
+    // Form submission
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Show loading state
+        submitBtn.disabled = true;
+        btnText.textContent = 'Göndərilir...';
+        btnSpinner.style.display = 'inline-block';
+
+        const formData = new FormData(form);
+
+        try {
+            const response = await fetch('/submit', {
+                method: 'POST',
+                body: formData
+            });
+
+            const result = await response.json();
+
+            if (result.success) {
+                document.getElementById('documentId').textContent = result.document_id;
+                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+                successModal.show();
+                form.reset();
+                fileName.innerHTML = '';
+            } else {
+                alert('Xəta: ' + result.error);
+            }
+        } catch (error) {
+            alert('Sistem xətası: ' + error.message);
+        }
+
+        // Reset button state
+        submitBtn.disabled = false;
+        btnText.textContent = 'Təqdim Et';
+        btnSpinner.style.display = 'none';
+    });
+});
+</script>
+{% endblock %}

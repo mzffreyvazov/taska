@@ -1,0 +1,36 @@
+# Core scientific computing
+numpy
+scipy
+
+# Machine learning and NLP
+scikit-learn
+rank-bm25
+
+# Vector databases (choose one)
+# Option 1: ChromaDB (easier setup)
+chromadb
+
+# Option 2: FAISS (better performance - uncomment if using)
+# faiss-cpu
+# For GPU: faiss-gpu
+
+# Sentence transformers for embeddings
+sentence-transformers
+transformers
+torch
+
+# HTTP and utilities
+requests
+urllib3
+
+# Data handling
+pandas
+
+# Optional: Hugging Face Hub (for model downloads)
+huggingface-hub
+
+# Text processing
+regex
+
+# JSON and file handling (usually built-in, but explicit versions)
+chardet
