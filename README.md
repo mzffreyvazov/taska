@@ -20,7 +20,7 @@ pip install -r requirements.txt
 
 3. **Backend-i başladın:**
 ```bash
-python app.py
+python simple_app.py
 ```
 
 ### Frontend Setup
