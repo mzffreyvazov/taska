@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* Markdown styles */
+.prose h1, .prose h2, .prose h3 {
+  @apply font-bold text-gray-900 mb-2;
+}
+
+.prose p {
+  @apply mb-3;
+}
+
+.prose ul, .prose ol {
+  @apply mb-3 ml-6;
+}
+
+.prose li {
+  @apply mb-1;
+}
+
+.prose code {
+  @apply bg-gray-100 px-1 py-0.5 rounded text-sm;
+}
+
+.prose pre {
+  @apply bg-gray-900 text-white p-4 rounded-lg overflow-x-auto;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-blue-500 pl-4 italic;
+}
+
+.prose table {
+  @apply w-full border-collapse;
+}
+
+.prose th, .prose td {
+  @apply border border-gray-300 px-3 py-2;
+}
+
+.prose strong {
+  @apply font-bold text-gray-900;
+}

@@ -1,0 +1,15 @@
+flask
+flask-cors
+flask-jwt-extended
+werkzeug
+google-generativeai
+langchain
+langchain-google-genai
+langchain-community
+chromadb
+pdfplumber
+PyPDF2
+python-docx
+openpyxl
+pandas
+python-dotenv
